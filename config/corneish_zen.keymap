@@ -11,6 +11,20 @@
 };
 
 / {
+    combos {
+        compatible = "zmk,combos";
+
+        ctrl_tab {
+            bindings = <&kp RC(TAB)>;
+            key-positions = <0 12>;
+        };
+
+        ctrl_shift_tab {
+            bindings = <&kp LS(LC(TAB))>;
+            key-positions = <12 24>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
