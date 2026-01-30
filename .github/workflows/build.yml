@@ -3,4 +3,4 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    uses: https://git.graves.cl/agraves/zmk/.github/workflows/build-user-config.yml@main
+    uses: https://github.com/alangrafu/zmk/.github/workflows/build-user-config.yml@main
