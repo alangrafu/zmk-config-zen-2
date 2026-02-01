@@ -3,4 +3,4 @@ zmk/
 zephyr/
 modules/
 tools/
-.west/
+.west/.DS_Store
