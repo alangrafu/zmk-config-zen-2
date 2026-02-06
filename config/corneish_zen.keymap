@@ -26,7 +26,7 @@
 
         clipboard_screenshot {
             bindings = <&kp LG(LS(NUMBER_1))>;
-            key-positions = <3 24 36>;
+            key-positions = <0 1 2>;
         };
     };
 
