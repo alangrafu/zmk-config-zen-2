@@ -23,6 +23,11 @@
             bindings = <&kp LS(LC(TAB))>;
             key-positions = <12 24>;
         };
+
+        clipboard_screenshot {
+            bindings = <&kp LG(LS(NUMBER_1))>;
+            key-positions = <24 37 3>;
+        };
     };
 
     keymap {
