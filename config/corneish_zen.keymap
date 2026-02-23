@@ -30,7 +30,7 @@
         };
 
         BT {
-            bindings = <&none>;
+            bindings = <&mo 4>;
             key-positions = <39 41>;
             layers = <4>;
         };
