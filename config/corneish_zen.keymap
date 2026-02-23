@@ -30,8 +30,8 @@
         };
 
         BT {
-            bindings = <&lt 4 ENTER>;
-            key-positions = <39 41>;
+            bindings = <&mo 4>;
+            key-positions = <11 10 9>;
             layers = <4>;
         };
     };
@@ -109,7 +109,7 @@
                                         &trans        &trans        &trans          &trans  &trans  &trans
             >;
 
-            label = "BLUETOOTH";
+            label = "BT";
         };
     };
 };
