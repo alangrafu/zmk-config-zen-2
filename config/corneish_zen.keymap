@@ -16,12 +16,12 @@
 
         ctrl_tab {
             bindings = <&kp RC(TAB)>;
-            key-positions = <0 12>;
+            key-positions = <13 1>;
         };
 
         ctrl_shift_tab {
             bindings = <&kp LS(LC(TAB))>;
-            key-positions = <12 24>;
+            key-positions = <12 0>;
         };
 
         clipboard_screenshot {
