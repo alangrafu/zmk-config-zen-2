@@ -176,10 +176,10 @@
             // ; = scroll down, ' = scroll up
 
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &mkp LCLK       &mmv MOVE_UP    &mkp RCLK        &trans          &msc SCRL_UP
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &trans          &msc SCRL_DOWN
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &mkp LCLK       &mmv MOVE_UP    &mkp RCLK        &trans          &msc SCRL_DOWN
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &trans          &msc SCRL_UP
 &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans          &trans          &trans           &trans          &trans
-                        &trans  &trans  &trans    &mkp RCLK  &trans       &mkp RCLK
+                        &trans  &trans  &trans    &mkp LCLK  &trans       &mkp RCLK
             >;
         };
     };
