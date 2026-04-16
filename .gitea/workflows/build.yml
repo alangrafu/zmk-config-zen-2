@@ -1,0 +1,186 @@
+name: Build ZMK firmware
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
+    name: Build (${{ matrix.board }}${{ matrix.shield && format(', {0}', matrix.shield) || '' }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: corneish_zen_v2_right
+          - board: corneish_zen_v2_left
+            snippet: studio-rpc-usb-uart
+            cmake-args: -DCONFIG_ZMK_STUDIO=y
+            artifact-name: corneish_zen_v2_left_with_studio
+    steps:
+      - name: Debug matrix
+        run: |
+          echo "board=${{ matrix.board }}"
+          echo "shield=${{ matrix.shield }}"
+
+      # Use shell-based checkout to avoid Node.js dependency in container
+      - name: Checkout
+        shell: sh
+        env:
+          REPO: ${{ gitea.repository }}
+          REF: ${{ gitea.ref }}
+          GIT_TOKEN: ${{ secrets.GIT_SECRET }}
+        run: |
+          git clone --depth=1 "https://agraves:${GIT_TOKEN}@git.graves.cl/${REPO}.git" .
+          git fetch --depth=1 origin "${REF}"
+          git checkout FETCH_HEAD
+
+      - name: Create build directory
+        run: echo "build_dir=$(mktemp -d)" >> $GITEA_ENV
+
+      - name: Prepare variables
+        shell: sh -x {0}
+        env:
+          board: ${{ matrix.board }}
+          shield: ${{ matrix.shield }}
+          artifact_name: ${{ matrix.artifact-name }}
+          snippet: ${{ matrix.snippet }}
+          cmake_args: ${{ matrix.cmake-args }}
+        run: |
+          if [ -e zephyr/module.yml ]; then
+            export zmk_load_arg=" -DZMK_EXTRA_MODULES='${GITHUB_WORKSPACE}'"
+            new_tmp_dir="${TMPDIR:-/tmp}/zmk-config"
+            mkdir -p "${new_tmp_dir}"
+            echo "base_dir=${new_tmp_dir}" >> $GITEA_ENV
+          else
+            echo "base_dir=${GITHUB_WORKSPACE}" >> $GITEA_ENV
+          fi
+
+          if [ -n "${snippet}" ]; then
+            extra_west_args="-S \"${snippet}\""
+          fi
+
+          echo "board=${board}" >> $GITEA_ENV
+          echo "cmake_args=${cmake_args}" >> $GITEA_ENV
+          echo "zephyr_version=${ZEPHYR_VERSION}" >> $GITEA_ENV
+          echo "extra_west_args=${extra_west_args}" >> $GITEA_ENV
+          echo "extra_cmake_args=${shield:+-DSHIELD=\"$shield\"}${zmk_load_arg}" >> $GITEA_ENV
+          echo "display_name=${shield:+$shield - }${board}" >> $GITEA_ENV
+          echo "artifact_name=${artifact_name:-${shield:+$shield-}${board}-zmk}" >> $GITEA_ENV
+
+      - name: Copy config files to isolated temporary directory
+        run: |
+          if [ "${{ env.base_dir }}" != "${GITHUB_WORKSPACE}" ]; then
+            mkdir "${{ env.base_dir }}/config"
+            cp -R config/* "${{ env.base_dir }}/config/"
+          fi
+
+      - name: West Init
+        working-directory: ${{ env.base_dir }}
+        run: west init -l "${{ env.base_dir }}/config"
+
+      - name: West Update
+        working-directory: ${{ env.base_dir }}
+        run: west update
+
+      - name: West Zephyr export
+        working-directory: ${{ env.base_dir }}
+        run: west zephyr-export
+
+      - name: West Build (${{ env.display_name }})
+        working-directory: ${{ env.base_dir }}
+        shell: sh -x {0}
+        run: west build -s zmk/app -d "${{ env.build_dir }}" -b "${{ env.board }}" ${{ env.extra_west_args }} -- -DZMK_CONFIG=${{ env.base_dir }}/config ${{ env.extra_cmake_args }} ${{ env.cmake_args }}
+
+      - name: ${{ env.display_name }} Kconfig file
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f "${{ env.build_dir }}/zephyr/.config" ]; then
+            grep -v -e "^#" -e "^$" "${{ env.build_dir }}/zephyr/.config" | sort
+          else
+            echo "No Kconfig output"
+          fi
+
+      - name: ${{ env.display_name }} Devicetree file
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f "${{ env.build_dir }}/zephyr/zephyr.dts" ]; then
+            cat "${{ env.build_dir }}/zephyr/zephyr.dts"
+          elif [ -f "${{ env.build_dir }}/zephyr/zephyr.dts.pre" ]; then
+            cat -s "${{ env.build_dir }}/zephyr/zephyr.dts.pre"
+          else
+            echo "No Devicetree output"
+          fi
+
+      - name: Rename artifacts
+        shell: sh -x {0}
+        run: |
+          mkdir "${{ env.build_dir }}/artifacts"
+          if [ -f "${{ env.build_dir }}/zephyr/zmk.uf2" ]; then
+            cp "${{ env.build_dir }}/zephyr/zmk.uf2" "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}.uf2"
+          elif [ -f "${{ env.build_dir }}/zephyr/zmk.bin" ]; then
+            cp "${{ env.build_dir }}/zephyr/zmk.bin" "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}.bin"
+          fi
+
+      - name: Archive (${{ env.display_name }})
+        shell: python3 {0}
+        env:
+          ARTIFACT_NAME: artifact-${{ env.artifact_name }}
+          ARTIFACT_DIR: ${{ env.build_dir }}/artifacts
+        run: |
+          import urllib.request, json, os, glob, sys, hashlib, base64
+
+          runtime_url   = os.environ.get('ACTIONS_RUNTIME_URL', '')
+          runtime_token = os.environ.get('ACTIONS_RUNTIME_TOKEN', '')
+          run_id        = os.environ.get('GITHUB_RUN_ID', '')
+          artifact_name = os.environ['ARTIFACT_NAME']
+          artifact_dir  = os.environ['ARTIFACT_DIR']
+
+          if not runtime_url or not runtime_token:
+              print(f'ERROR: ACTIONS_RUNTIME_URL={runtime_url!r}  token set={bool(runtime_token)}', file=sys.stderr)
+              sys.exit(1)
+
+          auth = {'Authorization': f'Bearer {runtime_token}'}
+
+          # 1. Create artifact container
+          req = urllib.request.Request(
+              f'{runtime_url}_apis/pipelines/workflows/{run_id}/artifacts?api-version=6.0-preview',
+              data=json.dumps({'type': 'actions_storage', 'name': artifact_name}).encode(),
+              headers={**auth, 'Content-Type': 'application/json'}, method='POST')
+          with urllib.request.urlopen(req) as r:
+              container = json.loads(r.read())
+
+          file_url = container['fileContainerResourceUrl']
+          total    = 0
+          items    = []
+
+          # 2. Upload each file — Gitea requires x-tfs-filelength and x-actions-results-md5
+          for f in sorted(glob.glob(os.path.join(artifact_dir, '*'))):
+              if not os.path.isfile(f):
+                  continue
+              fname = os.path.basename(f)
+              with open(f, 'rb') as fp:
+                  data = fp.read()
+              n       = len(data)
+              total  += n
+              md5_b64 = base64.b64encode(hashlib.md5(data).digest()).decode()
+              req = urllib.request.Request(
+                  f'{file_url}?itemPath={artifact_name}/{fname}', data=data,
+                  headers={
+                      **auth,
+                      'Content-Type': 'application/octet-stream',
+                      'Content-Range': f'bytes 0-{n - 1}/{n}',
+                      'x-tfs-filelength': str(n),
+                      'x-actions-results-md5': md5_b64,
+                  }, method='PUT')
+              urllib.request.urlopen(req)
+              items.append({'path': f'{artifact_name}/{fname}', 'itemType': 'file', 'contentLocation': f'{file_url}?itemPath={artifact_name}/{fname}'})
+              print(f'  uploaded {fname} ({n} bytes)')
+
+          # 3. Finalise
+          finalize_url = f'{runtime_url}_apis/pipelines/workflows/{run_id}/artifacts?api-version=6.0-preview&artifactName={artifact_name}'
+          req = urllib.request.Request(
+              finalize_url,
+              data=json.dumps({'size': total}).encode(),
+              headers={**auth, 'Content-Type': 'application/json'}, method='PATCH')
+          urllib.request.urlopen(req)
+          print(f'Artifact "{artifact_name}" ready ({total} bytes)')

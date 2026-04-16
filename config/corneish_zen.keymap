@@ -1,6 +1,63 @@
+// ── Mouse speed ────────────────────────────────────────────────────────────
+// Must be defined BEFORE mouse.h, which uses #ifndef guards for these values.
+// Both values are in "units per report"; roughly pixels/tick for move and
+// lines/tick for scroll, though the exact feel depends on OS scaling.
+
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 600  // cursor max speed  (default: 600)
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 10   // scroll max speed  (default: 10)
+
+#include <dt-bindings/zmk/mouse.h>
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/pointing.h>
+
+// ── Mouse acceleration and timing ──────────────────────────────────────────
+// Override the built-in mmv (cursor) and msc (scroll) behavior defaults.
+// All time values are in milliseconds.
+
+&mmv {
+    // How long to ramp from 0 to ZMK_POINTING_DEFAULT_MOVE_VAL.
+    // Lower = snappier start; 0 = instant jump to max speed.  Default: 300
+
+    time-to-max-speed-ms = <300>;
+
+    // Shape of the acceleration curve during the ramp.
+    //   0 = uniform speed     (cursor moves at max speed immediately, no ramp)
+    //   1 = uniform accel     (speed grows linearly — default feel)
+    //   2 = uniform jerk      (speed grows quadratically — very gradual start)
+
+    acceleration-exponent = <1>;
+
+    // How often a movement event is fired while the key is held.
+    // 16 ms ≈ 60 Hz.  Raise for lower CPU load, lower for smoother motion.  Default: 16
+
+    trigger-period-ms = <16>;
+
+    // Extra delay (ms) before movement begins after key press.
+    // Useful to avoid accidental moves when tapping through the layer key.
+    // Uncomment and set if needed.  Default: 0 (no delay)
+    // delay-ms = <0>;
+};
+
+&msc {
+    // How long to ramp from 0 to ZMK_POINTING_DEFAULT_SCRL_VAL.
+    // 0 = instant.  Default: 300
+
+    time-to-max-speed-ms = <300>;
+
+    // Scroll acceleration curve (same values as above).
+    // 0 (uniform speed) is recommended for scroll — feels more natural.  Default: 0
+
+    acceleration-exponent = <0>;
+
+    // Scroll tick interval in ms while key is held.  Default: 16
+
+    trigger-period-ms = <16>;
+
+    // Delay before scrolling starts.  Default: 0 (no delay)
+    // delay-ms = <0>;
+};
 
 / {
     chosen {
@@ -16,12 +73,17 @@
 
         ctrl_tab {
             bindings = <&kp RC(TAB)>;
-            key-positions = <0 12>;
+            key-positions = <13 1>;
         };
 
         ctrl_shift_tab {
             bindings = <&kp LS(LC(TAB))>;
-            key-positions = <12 24>;
+            key-positions = <12 0>;
+        };
+
+        clipboard_screenshot {
+            bindings = <&kp LG(LS(NUMBER_1))>;
+            key-positions = <0 1 2>;
         };
     };
 
@@ -38,9 +100,9 @@
             //                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
 
             bindings = <
-&kp TAB    &kp Q    &kp W  &kp E     &kp R  &kp T        &kp Y    &kp U  &kp I      &kp O    &kp P     &kp BSPC
-&kp LCTRL  &lt 3 A  &kp S  &kp D     &kp F  &kp G        &kp H    &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
-&kp LSHFT  &kp Z    &kp X  &kp C     &kp V  &kp B        &kp N    &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp ESC
+&kp TAB    &kp Q    &kp W  &kp E     &kp R  &kp T        &lt 4 Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
+&kp LCTRL  &lt 3 A  &kp S  &kp D     &kp F  &kp G        &kp H    &kp J  &kp K      &kp L    &kp SEMI  &kp SINGLE_QUOTE
+&kp LSHFT  &lt 5 Z  &kp X  &kp C     &kp V  &kp B        &kp N    &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp ESC
                            &kp LGUI  &mo 1  &kp SPACE    &kp RET  &mo 2  &kp RALT
             >;
         };
@@ -55,10 +117,10 @@
             //                    | GUI |     | SPC |   | ENT |     | ALT |
 
             bindings = <
-&kp TAB     &kp N1        &kp N2        &kp N3        &kp N4        &kp N5          &kp N6    &kp N7    &kp N8    &kp N9     &kp N0  &kp BSPC
-&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT  &trans  &studio_unlock
-&kp LSHFT   &trans        &trans        &trans        &trans        &trans          &trans    &trans    &trans    &trans     &trans  &trans
-                                        &kp LGUI      &trans        &kp SPACE       &kp RET   &trans    &kp RALT
+&kp TAB    &kp N1  &kp N2  &kp N3    &kp N4  &kp N5       &kp N6    &kp N7         &kp N8       &kp N9     &kp N0  &kp BSPC
+&kp LCTRL  &trans  &trans  &trans    &trans  &trans       &kp LEFT  &kp DOWN       &kp UP       &kp RIGHT  &trans  &studio_unlock
+&kp LSHFT  &trans  &trans  &trans    &trans  &trans       &kp HOME  &kp PAGE_DOWN  &kp PAGE_UP  &kp END    &trans  &trans
+                           &kp LGUI  &trans  &kp SPACE    &kp RET   &trans         &kp LALT
             >;
         };
 
@@ -72,10 +134,10 @@
             //                    | GUI |     | SPC |   | ENT |     | ALT |
 
             bindings = <
-&kp TAB    &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT    &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR  &kp RPAR  &kp BSPC
-&kp LCTRL  &trans    &trans  &trans    &trans    &trans       &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT  &kp BSLH  &kp GRAVE
-&kp LSHFT  &trans    &trans  &trans    &trans    &trans       &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC  &kp PIPE  &kp TILDE
-                             &kp LGUI  &trans    &kp SPACE    &kp RET    &trans     &kp RALT
+&kp TAB    &kp EXCL  &kp AT  &kp HASH  &kp DLLR       &kp PRCNT           &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR  &kp RPAR  &kp BSPC
+&kp LCTRL  &trans    &trans  &trans    &trans         &trans              &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT  &kp BSLH  &kp GRAVE
+&kp LSHFT  &trans    &trans  &trans    &kp LESS_THAN  &kp GREATER_THAN    &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC  &kp PIPE  &kp TILDE
+                             &kp LGUI  &trans         &kp SPACE           &kp RET    &trans     &kp RALT
             >;
         };
 
@@ -88,6 +150,37 @@
             >;
 
             label = "MEDIA";
+        };
+
+        bt_layer {
+            bindings = <
+&trans      &trans        &trans        &trans        &trans        &trans          &trans  &trans  &trans  &trans  &trans  &trans
+&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &trans  &trans  &trans  &trans  &trans  &trans
+&trans      &trans        &trans        &trans        &trans        &trans          &trans  &trans  &trans  &trans  &trans  &trans
+                                        &trans        &trans        &trans          &trans  &trans  &trans
+            >;
+
+            label = "BT";
+        };
+
+        mouse_layer {
+            display-name = "MOUSE";
+
+            // -----------------------------------------------------------------------------------------
+            // |      |     |     |     |     |     |   |     | LCLK|  UP | RCLK|     |      |
+            // |      |     |     |     |     |     |   |     | LEFT| DOWN| RGHT| SDWN| SUP  |
+            // | SHFT |(mo) |     |     |     |     |   |     |     |     |     |     |      |
+            //                    |     |     |     |   |     |     |     |
+            // U = left click, I = move up, O = right click
+            // J = move left, K = move down, L = move right
+            // ; = scroll down, ' = scroll up
+
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &mkp LCLK       &mmv MOVE_UP    &mkp RCLK        &trans          &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &msc SCRL_DOWN  &msc SCRL_UP
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans          &trans          &trans           &trans          &trans
+                        &trans  &trans  &trans    &trans  &trans          &trans
+            >;
         };
     };
 };
