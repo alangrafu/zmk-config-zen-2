@@ -87,6 +87,15 @@
         };
     };
 
+    behaviors {
+        optional_mouse: optional_mouse {
+            compatible = "zmk,behavior-tap-dance";
+            label = "OPTIONAL_MOUSE";
+            #binding-cells = <0>;
+            bindings = <&kp LSHFT>, <&mo 5>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
