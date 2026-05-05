@@ -3,7 +3,7 @@
 // Both values are in "units per report"; roughly pixels/tick for move and
 // lines/tick for scroll, though the exact feel depends on OS scaling.
 
-#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200  // cursor max speed  (default: 600)
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 800  // cursor max speed  (default: 600)
 #define ZMK_POINTING_DEFAULT_SCRL_VAL 10   // scroll max speed  (default: 10)
 
 #include <dt-bindings/zmk/mouse.h>
