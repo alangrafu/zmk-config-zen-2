@@ -13,6 +13,7 @@
 #include <dt-bindings/zmk/pointing.h>
 
 // ── Layer indices ──────────────────────────────────────────────────────────
+
 #define BASE  0
 #define NUM   1
 #define SYM   2
@@ -80,6 +81,7 @@
         compatible = "zmk,combos";
 
         // ── Existing shortcuts (unchanged) ──
+
         ctrl_tab {
             bindings = <&kp RC(TAB)>;
             key-positions = <13 1>;
@@ -96,6 +98,7 @@
         };
 
         // ── Caps Word: both index home keys (F + J) ──
+
         caps_word {
             bindings = <&caps_word>;
             key-positions = <16 19>;
@@ -104,6 +107,7 @@
         // ── Clear BT pairing: guarded. Only fires from the two OUTERMOST
         //    Bluetooth keys (BT 0 + BT 4) pressed together, and only while the
         //    BT layer is held (Y). Deliberately hard to hit by accident.
+
         bt_clear {
             bindings = <&bt BT_CLR>;
             key-positions = <13 17>;
@@ -113,10 +117,12 @@
 
     behaviors {
         // Backspace, but Shift → Delete.
+
         bspc_del: backspace_delete {
             compatible = "zmk,behavior-mod-morph";
             #binding-cells = <0>;
             bindings = <&kp BSPC>, <&kp DEL>;
+
             mods = <(MOD_LSFT|MOD_RSFT)>;
         };
 
@@ -125,6 +131,7 @@
         // key, not during fast same-hand typing rolls. Command is NOT here —
         // it stays on the left thumb. Order (ring/middle/index): Option/Ctrl/Shift.
         // Tune tapping-term-ms (180–240) and require-prior-idle-ms if needed.
+
         hml: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
@@ -153,14 +160,63 @@
     // ── Spanish accent macros (macOS, US/ABC layout) ───────────────────────
     // Each fires the macOS Option "dead key" then the base letter, in one press:
     //   ⌥E → acute (á é í ó ú),  ⌥N → tilde (ñ),  ⌥U → diaeresis (ü).
+
     macros {
-        es_a: es_a { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(E) &kp A>; };
-        es_e: es_e { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(E) &kp E>; };
-        es_i: es_i { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(E) &kp I>; };
-        es_o: es_o { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(E) &kp O>; };
-        es_u: es_u { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(E) &kp U>; };
-        es_n: es_n { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(N) &kp N>; };
-        es_ud: es_ud { compatible = "zmk,behavior-macro"; #binding-cells = <0>; wait-ms = <20>; tap-ms = <20>; bindings = <&macro_tap &kp LA(U) &kp U>; };
+        es_a: es_a {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(E) &kp A>;
+        };
+
+        es_e: es_e {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(E) &kp E>;
+        };
+
+        es_i: es_i {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(E) &kp I>;
+        };
+
+        es_o: es_o {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(E) &kp O>;
+        };
+
+        es_u: es_u {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(E) &kp U>;
+        };
+
+        es_n: es_n {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(N) &kp N>;
+        };
+
+        es_ud: es_ud {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <20>;
+            bindings = <&macro_tap>, <&kp LA(U) &kp U>;
+        };
     };
 
     keymap {
@@ -181,10 +237,10 @@
             // Home-row mods: Option/Ctrl/Shift on S D F  /  J K L (opposite = Command on thumb).
 
             bindings = <
-&kp TAB    &kp Q       &kp W        &kp E        &kp R        &kp T          &lt BT Y   &kp U        &kp I        &kp O        &kp P     &bspc_del
-&kp LCTRL  &kp A       &hml LALT S  &hml LCTRL D &hml LSHFT F &kp G          &kp H      &hmr RSHFT J &hmr RCTRL K &hmr RALT L  &kp SEMI  &kp SQT
-&kp LSHFT  &lt MEDIA Z &kp X        &kp C        &kp V        &lt MOUSE B    &kp N      &kp M        &kp COMMA    &kp DOT      &kp FSLH  &kp ESC
-                                    &kp LGUI     &mo NUM      &kp SPACE      &kp RET    &mo SYM      &kp BSPC
+&kp TAB    &kp Q        &kp W        &kp E         &kp R         &kp T          &lt BT Y  &kp U         &kp I         &kp O        &kp P     &bspc_del
+&kp LCTRL  &kp A        &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G          &kp H     &hmr RSHFT J  &hmr RCTRL K  &hmr RALT L  &kp SEMI  &kp SQT
+&kp LSHFT  &lt MEDIA Z  &kp X        &kp C         &kp V         &lt MOUSE B    &kp N     &kp M         &kp COMMA     &kp DOT      &kp FSLH  &kp ESC
+                                     &kp LGUI      &mo NUM       &kp SPACE      &kp RET   &mo SYM       &kp BSPC
             >;
         };
 
@@ -196,10 +252,10 @@
             // Left home row = Spanish accents in vowel order: á é í ó ú, with ñ / ü.
 
             bindings = <
-&kp TAB    &kp N1   &kp N2  &kp N3  &kp N4     &kp N5        &kp N6     &kp N7    &kp N8    &kp N9     &kp N0    &bspc_del
-&kp LCTRL  &es_a    &es_e   &es_i   &es_o      &es_u         &kp LEFT   &kp DOWN  &kp UP    &kp RIGHT  &es_n     &es_ud
-&kp LSHFT  &kp LG(Z) &kp LG(X) &kp LG(C) &kp LG(V) &kp LG(LS(Z))  &kp HOME   &kp PG_DN &kp PG_UP &kp END    &trans    &trans
-                             &trans   &trans     &kp SPACE     &kp RET    &mo SYM   &trans
+&kp TAB    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5           &kp N6    &kp N7     &kp N8     &kp N9     &kp N0  &bspc_del
+&kp LCTRL  &es_a      &es_e      &es_i      &es_o      &es_u            &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &es_n   &es_ud
+&kp LSHFT  &kp LG(Z)  &kp LG(X)  &kp LG(C)  &kp LG(V)  &kp LG(LS(Z))    &kp HOME  &kp PG_DN  &kp PG_UP  &kp END    &trans  &trans
+                                 &trans     &trans     &kp SPACE        &kp RET   &mo SYM    &trans
             >;
         };
 
@@ -258,10 +314,10 @@
             // Clicks on the right thumbs; back / fwd / middle-click on the left fingers.
 
             bindings = <
-&trans     &trans      &trans      &trans     &trans  &trans        &kp LG(LS(Z))  &kp LG(V)       &kp LG(C)     &kp LG(X)        &kp LG(Z)       &trans
-&kp LCTRL  &mkp MB4    &mkp MB5    &mkp MCLK  &trans  &trans        &mmv MOVE_LEFT &mmv MOVE_DOWN  &mmv MOVE_UP  &mmv MOVE_RIGHT  &trans          &trans
-&trans     &trans      &trans      &trans     &trans  &trans        &msc SCRL_LEFT &msc SCRL_DOWN  &msc SCRL_UP  &msc SCRL_RIGHT  &trans          &trans
-                                   &trans     &trans  &trans        &trans         &mkp LCLK       &mkp RCLK
+&trans     &trans    &trans    &trans  &trans  &trans    &kp LG(LS(Z))   &kp LG(V)       &kp LG(C)     &kp LG(X)        &kp LG(Z)  &trans
+&kp LCTRL  &mkp MB4  &mkp MB5  &trans  &trans  &trans    &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_UP  &mmv MOVE_RIGHT  &trans     &trans
+&trans     &trans    &trans    &trans  &trans  &trans    &msc SCRL_LEFT  &msc SCRL_DOWN  &msc SCRL_UP  &msc SCRL_RIGHT  &trans     &trans
+                               &trans  &trans  &trans    &mkp LCLK       &mkp MCLK       &mkp RCLK
             >;
         };
     };
