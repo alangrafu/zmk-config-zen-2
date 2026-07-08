@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corne Zen — proposed layout</title>
+<style>
+  :root {
+    --bg: #f4f6f7;
+    --surface: #ffffff;
+    --surface-2: #eef1f3;
+    --ink: #1b2126;
+    --ink-soft: #55606a;
+    --muted: #8a949d;
+    --line: #dde2e6;
+    --cap: #e9edf0;
+    --cap-line: #cfd6db;
+    --cap-ink: #232a30;
+
+    --r-mod:   #0f9b8e;
+    --r-layer: #b5751a;
+    --r-mouse: #6d5bd0;
+    --r-nav:   #c1567e;
+    --r-sys:   #2f74c0;
+    --r-acc:   #3f8f56;
+
+    --mod-wash:   #0f9b8e18;
+    --layer-wash: #b5751a1c;
+    --mouse-wash: #6d5bd018;
+    --nav-wash:   #c1567e18;
+    --sys-wash:   #2f74c018;
+    --acc-wash:   #3f8f5618;
+
+    --hold-ring: #b5751a;
+    --radius: 9px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1417;
+      --surface: #161d21;
+      --surface-2: #1b2429;
+      --ink: #e7ecef;
+      --ink-soft: #a8b3bb;
+      --muted: #74808a;
+      --line: #263036;
+      --cap: #1f282e;
+      --cap-line: #313d44;
+      --cap-ink: #dfe6eb;
+
+      --r-mod:   #35c9b8;
+      --r-layer: #e0a13a;
+      --r-mouse: #9d8cf0;
+      --r-nav:   #e57ba3;
+      --r-sys:   #61a0e6;
+      --r-acc:   #6cc487;
+
+      --mod-wash:   #35c9b820;
+      --layer-wash: #e0a13a1f;
+      --mouse-wash: #9d8cf020;
+      --nav-wash:   #e57ba31e;
+      --sys-wash:   #61a0e61e;
+      --acc-wash:   #6cc4871e;
+
+      --hold-ring: #e0a13a;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6f7; --surface: #ffffff; --surface-2: #eef1f3; --ink: #1b2126;
+    --ink-soft: #55606a; --muted: #8a949d; --line: #dde2e6; --cap: #e9edf0;
+    --cap-line: #cfd6db; --cap-ink: #232a30;
+    --r-mod:#0f9b8e; --r-layer:#b5751a; --r-mouse:#6d5bd0; --r-nav:#c1567e; --r-sys:#2f74c0; --r-acc:#3f8f56;
+    --mod-wash:#0f9b8e18; --layer-wash:#b5751a1c; --mouse-wash:#6d5bd018; --nav-wash:#c1567e18; --sys-wash:#2f74c018; --acc-wash:#3f8f5618;
+    --hold-ring:#b5751a;
+  }
+  :root[data-theme="dark"] {
+    --bg:#0f1417; --surface:#161d21; --surface-2:#1b2429; --ink:#e7ecef;
+    --ink-soft:#a8b3bb; --muted:#74808a; --line:#263036; --cap:#1f282e;
+    --cap-line:#313d44; --cap-ink:#dfe6eb;
+    --r-mod:#35c9b8; --r-layer:#e0a13a; --r-mouse:#9d8cf0; --r-nav:#e57ba3; --r-sys:#61a0e6; --r-acc:#6cc487;
+    --mod-wash:#35c9b820; --layer-wash:#e0a13a1f; --mouse-wash:#9d8cf020; --nav-wash:#e57ba31e; --sys-wash:#61a0e61e; --acc-wash:#6cc4871e;
+    --hold-ring:#e0a13a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 22px 72px; }
+
+  header { border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 26px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--r-mod); margin: 0 0 10px;
+  }
+  h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.1; margin: 0 0 10px; text-wrap: balance; letter-spacing: -0.01em; }
+  .lede { color: var(--ink-soft); max-width: 62ch; margin: 0; font-size: 15px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px 20px; margin: 22px 0;
+  }
+  h2 { font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; font-weight: 600; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+  .legend .item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); }
+  .swatch { width: 13px; height: 13px; border-radius: 4px; flex: none; }
+  .sw-mod { background: var(--r-mod); }
+  .sw-layer { background: var(--r-layer); }
+  .sw-mouse { background: var(--r-mouse); }
+  .sw-nav { background: var(--r-nav); }
+  .sw-sys { background: var(--r-sys); }
+  .sw-acc { background: var(--r-acc); }
+  .sw-type { background: var(--cap); border: 1px solid var(--cap-line); }
+  .sw-trans { background: transparent; border: 1px dashed var(--cap-line); }
+
+  /* Layer block */
+  .layer { margin: 30px 0; }
+  .layer-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+  .layer-name { font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+  .layer-idx {
+    font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 5px;
+    background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
+  }
+  .layer-access { font-size: 13px; color: var(--ink-soft); }
+  .layer-access b { color: var(--r-layer); font-weight: 600; }
+
+  .board-scroll { overflow-x: auto; padding: 6px 0 4px; }
+  .board { display: flex; gap: clamp(20px, 5vw, 58px); justify-content: center; min-width: 620px; }
+  .half { display: flex; flex-direction: column; gap: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .thumbs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .half.left .thumbs .key { grid-row: 1; }
+  .half.left .thumbs .t0 { grid-column: 4; }
+  .half.left .thumbs .t1 { grid-column: 5; }
+  .half.left .thumbs .t2 { grid-column: 6; transform: translateY(7px); }
+  .half.right .thumbs .t0 { grid-column: 1; transform: translateY(7px); }
+  .half.right .thumbs .t1 { grid-column: 2; }
+  .half.right .thumbs .t2 { grid-column: 3; }
+
+  .key {
+    position: relative;
+    width: 52px; height: 50px;
+    background: var(--cap); border: 1px solid var(--cap-line);
+    border-radius: var(--radius);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 3px; text-align: center;
+    box-shadow: 0 1px 0 var(--cap-line);
+  }
+  .key .main {
+    font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--cap-ink);
+    line-height: 1.05; max-width: 100%; overflow: hidden;
+  }
+  .key .main.sm { font-size: 11px; }
+  .key .main.xs { font-size: 9.5px; letter-spacing: -0.02em; }
+  .key .sub {
+    font-family: var(--mono); font-size: 9px; font-weight: 700;
+    letter-spacing: .02em; margin-top: 2px;
+  }
+
+  /* column stagger */
+  .grid .c0 { transform: translateY(6px); }
+  .grid .c1 { transform: translateY(2px); }
+  .grid .c2 { transform: translateY(0); }
+  .grid .c3 { transform: translateY(3px); }
+  .grid .c4 { transform: translateY(9px); }
+  .grid .c5 { transform: translateY(11px); }
+  .half.right .grid .c0 { transform: translateY(11px); }
+  .half.right .grid .c1 { transform: translateY(9px); }
+  .half.right .grid .c2 { transform: translateY(3px); }
+  .half.right .grid .c3 { transform: translateY(0); }
+  .half.right .grid .c4 { transform: translateY(2px); }
+  .half.right .grid .c5 { transform: translateY(6px); }
+
+  /* roles */
+  .key.trans { background: transparent; border-style: dashed; box-shadow: none; }
+  .key.trans .main { color: var(--muted); opacity: .5; font-weight: 500; }
+  .key.mod   { background: var(--mod-wash);   border-color: var(--r-mod); }
+  .key.mod .sub { color: var(--r-mod); }
+  .key.hrm   { border-bottom: 2.5px solid var(--r-mod); }
+  .key.hrm .sub { color: var(--r-mod); }
+  .key.layer { background: var(--layer-wash); border-color: var(--r-layer); }
+  .key.layer .sub { color: var(--r-layer); }
+  .key.mouse { background: var(--mouse-wash); border-color: var(--r-mouse); }
+  .key.mouse .main { color: var(--r-mouse); }
+  .key.nav   { background: var(--nav-wash);   border-color: var(--r-nav); }
+  .key.nav .main { color: var(--r-nav); }
+  .key.sys   { background: var(--sys-wash);   border-color: var(--r-sys); }
+  .key.sys .main { color: var(--r-sys); }
+  .key.accent { background: var(--acc-wash); border-color: var(--r-acc); }
+  .key.accent .main { color: var(--r-acc); }
+
+  .key.held { outline: 2.5px solid var(--hold-ring); outline-offset: 2px; }
+  .key.held::after {
+    content: "HELD"; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 7.5px; font-weight: 700; letter-spacing: .1em;
+    background: var(--hold-ring); color: #fff; padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+  }
+
+  /* combos + notes */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } }
+  .combo { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .combo:last-child { border-bottom: 0; }
+  .combo .keys { display: flex; gap: 4px; }
+  kbd {
+    font-family: var(--mono); font-size: 11px; padding: 2px 6px; border-radius: 5px;
+    background: var(--surface-2); border: 1px solid var(--cap-line); color: var(--cap-ink); white-space: nowrap;
+  }
+  .combo .arrow { color: var(--muted); }
+  .combo .res { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .combo .tag { font-size: 11px; color: var(--r-mod); font-family: var(--mono); }
+
+  ul.notes { margin: 0; padding: 0; list-style: none; }
+  ul.notes li { padding: 7px 0 7px 20px; position: relative; font-size: 13.5px; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+  ul.notes li:last-child { border-bottom: 0; }
+  ul.notes li::before { content: ""; position: absolute; left: 2px; top: 14px; width: 6px; height: 6px; border-radius: 2px; background: var(--r-layer); }
+  ul.notes li b { color: var(--ink); font-weight: 600; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); }
+
+  footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Corne-ish Zen v2 · 42-key · ZMK · macOS</p>
+    <h1>Proposed keymap — visual review</h1>
+    <p class="lede">A redesign built around <strong>home-row mods</strong> for Shift · Ctrl · Option (<strong>Command stays on your left thumb</strong>, where you use it most), Miryoku-style <strong>thumb layers</strong>, and a two-handed <strong>mouse layer</strong> whose movement reuses your arrow keys — plus scroll, horizontal scroll, back/forward and drag-and-drop. Nothing is written to the keymap yet — this is for you to check placements before I commit. <strong>Command, Space, Enter, and left Ctrl are unchanged.</strong></p>
+  </header>
+
+  <div class="panel">
+    <h2>Legend — colour = what the key does</h2>
+    <div class="legend">
+      <span class="item"><span class="swatch sw-type"></span>Type (letters / numbers / symbols)</span>
+      <span class="item"><span class="swatch sw-mod"></span>Modifier / home-row mod</span>
+      <span class="item"><span class="swatch sw-layer"></span>Layer switch</span>
+      <span class="item"><span class="swatch sw-mouse"></span>Mouse</span>
+      <span class="item"><span class="swatch sw-nav"></span>Navigation / edit</span>
+      <span class="item"><span class="swatch sw-sys"></span>System · Bluetooth · media</span>
+      <span class="item"><span class="swatch sw-acc"></span>Spanish accents</span>
+      <span class="item"><span class="swatch sw-trans"></span>Transparent (falls through)</span>
+    </div>
+  </div>
+
+  <div id="layers"></div>
+
+  <div class="panel">
+    <h2>Combos <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">— you said combos are welcome</span></h2>
+    <div class="cols">
+      <div>
+        <div class="combo"><span class="keys"><kbd>F</kbd><kbd>J</kbd></span><span class="arrow">→</span><span class="res">Caps Word</span><span class="tag">new</span></div>
+        <div class="combo"><span class="keys"><kbd>Tab</kbd><kbd>Q</kbd><kbd>W</kbd></span><span class="arrow">→</span><span class="res">⌘⇧3 screenshot</span></div>
+        <div class="combo"><span class="keys"><kbd>A</kbd><kbd>Q</kbd></span><span class="arrow">→</span><span class="res">⌃Tab</span></div>
+      </div>
+      <div>
+        <div class="combo"><span class="keys"><kbd>Tab</kbd><kbd>Ctrl</kbd></span><span class="arrow">→</span><span class="res">⌃⇧Tab</span></div>
+        <div class="combo"><span class="keys" style="opacity:.9"><kbd>BT&nbsp;0</kbd><kbd>BT&nbsp;4</kbd></span><span class="arrow">→</span><span class="res">Clear&nbsp;BT&nbsp;pairing</span><span class="tag" style="color:var(--r-nav)">guarded</span></div>
+      </div>
+    </div>
+    <p style="margin:14px 0 0;font-size:12.5px;color:var(--muted)"><b style="color:var(--r-nav)">BT&nbsp;Clear is deliberately hard to hit</b> — it's off the key grid entirely and only fires when you press the two <em>outermost</em> Bluetooth keys (<kbd>BT&nbsp;0</kbd> + <kbd>BT&nbsp;4</kbd>) together <em>while holding the BT layer (Y)</em>. No more clearing pairings when reaching for BT&nbsp;0. Copy / cut / paste / undo / redo stay on the NUM layer over <kbd>Z X C V B</kbd> (aligned to the physical ⌘Z/X/C/V keys).</p>
+  </div>
+
+  <div class="panel" style="border-color:var(--r-acc)">
+    <h2 style="color:var(--r-acc)">Spanish accents — one press each</h2>
+    <p style="margin:0 0 12px;font-size:14px;color:var(--ink-soft)">On the <b>NUM layer</b>, the left home row becomes the accented vowels in order <b>á é í ó ú</b>, with <b>ñ</b> and <b>ü</b> on the right pinky. Each is a one-press macro that fires the macOS ⌥-deadkey + letter for you — no thinking about which Option to hold.</p>
+    <div class="cols">
+      <div>
+        <div class="combo"><span class="keys"><kbd>NUM</kbd><kbd>A S D F G</kbd></span><span class="arrow">→</span><span class="res">á é í ó ú</span></div>
+      </div>
+      <div>
+        <div class="combo"><span class="keys"><kbd>NUM</kbd><kbd>;</kbd></span><span class="arrow">→</span><span class="res">ñ</span><span class="res" style="color:var(--muted)">&nbsp;· <kbd>'</kbd> → ü</span></div>
+      </div>
+    </div>
+    <p style="margin:12px 0 0;font-size:12.5px;color:var(--muted)"><b>Fallback still works:</b> the raw ⌥-deadkey method (hold the <em>opposite-hand</em> Option — right ⌥/L for é, left ⌥/S for ñ, then the letter). The dedicated keys just save you the reach.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Notes &amp; tuning knobs</h2>
+    <ul class="notes">
+      <li><b>Home-row mods</b> are Option · Ctrl · Shift on the ring / middle / index (both hands). <b>Command stays on your left thumb</b>, and the pinky keys (<kbd>A</kbd> / <kbd>;</kbd>) stay plain — pinky mods misfire the most, so this is more reliable than full Miryoku GACS.</li>
+      <li>Misfire protection: <code>require-prior-idle-ms</code> + positional <code>hold-trigger-key-positions</code> mean the mods only engage with an opposite-hand key, not during fast same-hand rolls. Tunable: <code>tapping-term-ms</code> 180–240.</li>
+      <li><b>Mouse = hold B</b> (left index), Miryoku-style: right hand does it all — <kbd>H J K L</kbd> move (your arrow keys), <kbd>N M , .</kbd> scroll, and the <b>clipboard row (Redo · Paste · Copy · Cut · Undo) sits directly above</b> the pointer keys so you can select-with-mouse and copy/paste without leaving the layer. <b>Clicks are on the right thumbs</b>; back / forward / middle-click on the free left fingers. <b>Drag</b> = hold right-thumb <kbd>L-clk</kbd> and move. The old right-outer thumb becomes a handy <b>Backspace</b> (easy to change).</li>
+      <li><b>Media = hold Z, Bluetooth = hold Y</b> — same layer keys you use now. Media is on the right hand with <b>volume rolling on the right pinky</b> (Vol+ top, Vol− home, Mute bottom). BT selection is on the left hand; <code>Studio</code>, <code>&amp;bootloader</code> and <code>&amp;sys_reset</code> live on the BT layer, so flashing no longer needs the physical reset button.</li>
+      <li>Scroll speed (<code>ZMK_POINTING_DEFAULT_SCRL_VAL</code>) may feel fast with smooth-scrolling on; easy to dial down if it overshoots.</li>
+    </ul>
+  </div>
+
+  <footer>Diagram for review only · positions match the 6-column Corne matrix (0–41) · generated 2026-07-07</footer>
+</div>
+
+<script>
+  const M = { GUI:"⌘", ALT:"⌥", CTL:"⌃", SFT:"⇧" };
+  // key(main, sub, role, sizeClass)
+  const k = (t, s="", r="type", sz="") => ({t, s, r, sz});
+  const X = () => ({t:"", s:"", r:"trans", sz:""});
+
+  // ---- Layer data (42 positions each: 0-11 row0, 12-23 row1, 24-35 row2, 36-41 thumbs) ----
+  const layers = [
+    {
+      name: "BASE", idx: "L0", access: "Always active — QWERTY. Command stays on the left thumb.",
+      held: [],
+      keys: [
+        k("Tab"),k("Q"),k("W"),k("E"),k("R"),k("T"),   k("Y","BT","layer"),k("U"),k("I"),k("O"),k("P"),k("⌫","","type"),
+        k("Ctrl","","mod","sm"),k("A"),k("S",M.ALT,"hrm"),k("D",M.CTL,"hrm"),k("F",M.SFT,"hrm"),k("G"),   k("H"),k("J",M.SFT,"hrm"),k("K",M.CTL,"hrm"),k("L",M.ALT,"hrm"),k(";"),k("'"),
+        k("Shift","","mod","sm"),k("Z","MEDIA","layer"),k("X"),k("C"),k("V"),k("B","MOUSE","layer"),   k("N"),k("M"),k(","),k("."),k("/"),k("Esc"),
+        k("⌘","Cmd","mod","sm"),k("NUM","","layer","sm"),k("Spc"),   k("Ent"),k("SYM","","layer","sm"),k("⌫","","type")
+      ]
+    },
+    {
+      name: "NUM · NAV", idx: "L1", access: "Hold NUM (left-middle thumb)",
+      held: [37],
+      keys: [
+        k("Tab"),k("1"),k("2"),k("3"),k("4"),k("5"),   k("6"),k("7"),k("8"),k("9"),k("0"),k("⌫","","type"),
+        k("Ctrl","","mod","sm"),k("á","","accent"),k("é","","accent"),k("í","","accent"),k("ó","","accent"),k("ú","","accent"),   k("←","","nav"),k("↓","","nav"),k("↑","","nav"),k("→","","nav"),k("ñ","","accent"),k("ü","","accent"),
+        k("Shift","","mod","sm"),k("⌘Z","undo","nav","sm"),k("⌘X","cut","nav","sm"),k("⌘C","copy","nav","sm"),k("⌘V","paste","nav","sm"),k("⌘⇧Z","redo","nav","xs"),   k("Home","","nav","xs"),k("PgDn","","nav","xs"),k("PgUp","","nav","xs"),k("End","","nav","xs"),X(),X(),
+        X(),k("NUM","","layer","sm"),k("Spc"),   k("Ent"),k("SYM","","layer","sm"),X()
+      ]
+    },
+    {
+      name: "SYM", idx: "L2", access: "Hold SYM (right-middle thumb)",
+      held: [40],
+      keys: [
+        k("Tab"),k("!"),k("@"),k("#"),k("$"),k("%"),   k("^"),k("&"),k("*"),k("(",""),k(")"),k("⌫","","type"),
+        k("Ctrl","","mod","sm"),X(),X(),X(),X(),X(),   k("-"),k("="),k("["),k("]"),k("\\"),k("`"),
+        k("Shift","","mod","sm"),X(),X(),X(),k("<"),k(">"),   k("_"),k("+"),k("{"),k("}"),k("|"),k("~"),
+        X(),k("NUM","","layer","sm"),k("Spc"),   k("Ent"),k("SYM","","layer","sm"),X()
+      ]
+    },
+    {
+      name: "MEDIA", idx: "L3", access: "Hold Z (bottom-left) — media on the right hand, volume rolls on the right pinky",
+      held: [25],
+      keys: [
+        X(),X(),X(),X(),X(),X(),   X(),k("⏮","prev","sys","sm"),k("⏯","play","sys","sm"),k("⏭","next","sys","sm"),X(),k("Vol+","","sys","sm"),
+        k("Ctrl","","mod","sm"),X(),X(),X(),X(),X(),   X(),X(),X(),X(),X(),k("Vol−","","sys","sm"),
+        k("Shift","","mod","sm"),k("Z","MEDIA","layer"),X(),X(),X(),X(),   X(),X(),X(),X(),X(),k("Mute","","sys","sm"),
+        X(),k("NUM","","layer","sm"),k("Spc"),   k("Ent"),k("SYM","","layer","sm"),X()
+      ]
+    },
+    {
+      name: "BT", idx: "L4", access: "Hold Y (top-right) — Bluetooth on the left hand",
+      held: [6],
+      keys: [
+        X(),X(),X(),X(),X(),X(),   k("Y","BT","layer"),X(),X(),X(),X(),X(),
+        k("Ctrl","","mod","sm"),k("BT 0","","sys","sm"),k("BT 1","","sys","sm"),k("BT 2","","sys","sm"),k("BT 3","","sys","sm"),k("BT 4","","sys","sm"),   X(),X(),X(),X(),X(),X(),
+        k("Shift","","mod","sm"),k("Studio","","sys","xs"),k("Boot","loader","sys","xs"),k("Reset","","sys","xs"),X(),X(),   X(),X(),X(),X(),X(),X(),
+        X(),k("NUM","","layer","sm"),k("Spc"),   k("Ent"),k("SYM","","layer","sm"),X()
+      ]
+    },
+    {
+      name: "MOUSE", idx: "L5", access: "Hold B (left index) — right hand free for HJKL; clipboard sits above the pointer keys (Miryoku-style)",
+      held: [29],
+      keys: [
+        X(),X(),X(),X(),X(),X(),   k("⌘⇧Z","redo","nav","xs"),k("⌘V","paste","nav","sm"),k("⌘C","copy","nav","sm"),k("⌘X","cut","nav","sm"),k("⌘Z","undo","nav","sm"),X(),
+        k("Ctrl","","mod","sm"),k("Back","mb4","mouse","sm"),k("Fwd","mb5","mouse","sm"),k("M-clk","","mouse","sm"),X(),X(),   k("←","move","mouse","sm"),k("↓","move","mouse","sm"),k("↑","move","mouse","sm"),k("→","move","mouse","sm"),X(),X(),
+        X(),X(),X(),X(),X(),k("B","MOUSE","layer"),   k("Scr←","","mouse","sm"),k("Scr↓","","mouse","sm"),k("Scr↑","","mouse","sm"),k("Scr→","","mouse","sm"),X(),X(),
+        X(),X(),k("Spc"),   k("Ent"),k("L-clk","","mouse","sm"),k("R-clk","","mouse","sm")
+      ]
+    }
+  ];
+
+  const container = document.getElementById("layers");
+
+  function keyEl(key, pos, heldPos) {
+    const el = document.createElement("div");
+    el.className = "key " + key.r + (heldPos.includes(pos) ? " held" : "");
+    // column class for stagger (only for the 3x6 grid, pos 0..35)
+    if (pos < 36) el.classList.add("c" + (pos % 6));
+    else {
+      const ti = pos < 39 ? pos - 36 : pos - 39;
+      el.classList.add("t" + ti);
+    }
+    const main = document.createElement("div");
+    main.className = "main" + (key.sz ? " " + key.sz : "");
+    main.textContent = key.t;
+    el.appendChild(main);
+    if (key.s) {
+      const sub = document.createElement("div");
+      sub.className = "sub";
+      sub.textContent = key.s;
+      el.appendChild(sub);
+    }
+    return el;
+  }
+
+  function rowSlice(keys, from, to, heldPos) {
+    const frag = document.createDocumentFragment();
+    for (let p = from; p < to; p++) frag.appendChild(keyEl(keys[p], p, heldPos));
+    return frag;
+  }
+
+  layers.forEach(layer => {
+    const block = document.createElement("div");
+    block.className = "layer";
+    block.innerHTML =
+      '<div class="layer-head">' +
+        '<span class="layer-name">' + layer.name + '</span>' +
+        '<span class="layer-idx">' + layer.idx + '</span>' +
+        '<span class="layer-access">' + layer.access.replace(/(NUM|SYM|SYS|MOUSE)/g,'<b>$1</b>') + '</span>' +
+      '</div>';
+
+    const scroll = document.createElement("div");
+    scroll.className = "board-scroll";
+    const board = document.createElement("div");
+    board.className = "board";
+
+    // left half
+    const left = document.createElement("div");
+    left.className = "half left";
+    const lgrid = document.createElement("div");
+    lgrid.className = "grid";
+    lgrid.appendChild(rowSlice(layer.keys, 0, 6, layer.held));
+    lgrid.appendChild(rowSlice(layer.keys, 12, 18, layer.held));
+    lgrid.appendChild(rowSlice(layer.keys, 24, 30, layer.held));
+    const lthumb = document.createElement("div");
+    lthumb.className = "thumbs";
+    lthumb.appendChild(rowSlice(layer.keys, 36, 39, layer.held));
+    left.appendChild(lgrid); left.appendChild(lthumb);
+
+    // right half
+    const right = document.createElement("div");
+    right.className = "half right";
+    const rgrid = document.createElement("div");
+    rgrid.className = "grid";
+    rgrid.appendChild(rowSlice(layer.keys, 6, 12, layer.held));
+    rgrid.appendChild(rowSlice(layer.keys, 18, 24, layer.held));
+    rgrid.appendChild(rowSlice(layer.keys, 30, 36, layer.held));
+    const rthumb = document.createElement("div");
+    rthumb.className = "thumbs";
+    rthumb.appendChild(rowSlice(layer.keys, 39, 42, layer.held));
+    right.appendChild(rgrid); right.appendChild(rthumb);
+
+    board.appendChild(left); board.appendChild(right);
+    scroll.appendChild(board);
+    block.appendChild(scroll);
+    container.appendChild(block);
+  });
+</script>
+</body>
+</html>

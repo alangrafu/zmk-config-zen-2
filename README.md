@@ -4,6 +4,10 @@
 
 **NOTE: This code is currently merged into ZMK Main.**
 
+## Keymap layout
+
+An interactive diagram of this keymap — all six layers, colour-coded by function, with the combos, Spanish accent keys, and tuning notes — lives in [`docs/keymap.html`](docs/keymap.html). Open it in any browser.
+
 This repo is the official configuration of the Corne-ish Zen V2 low profile wireless mechanical keyboard. Use it to develop your own keymap and easily build your own ZMK firmware to run on your Corne-ish Zen. These steps will get you using your keymap on your keyboard in the fastest time possible. It uses the GitHub Actions feature to build your firmware online, rather than setting up a complex tool chain on your local computer.
 
 If you are looking to dig deeper into ZMK and develop new functionality, it is recommended to follow the steps of installing ZMK as found on the official ZMK documentation site (linked below).
