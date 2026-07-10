@@ -172,9 +172,9 @@
             // ┌─────┬─────┬─────┬─────┬─────┬─────┐   ┌─────┬─────┬─────┬─────┬─────┬─────┐
             // │ TAB │  Q  │  W  │  E  │  R  │  T  │   │Y/BT │  U  │  I  │  O  │  P  │ ⌫/DEL│
             // ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
-            // │CTRL │  A  │ S/⌥ │ D/⌃ │ F/⇧ │  G  │   │  H  │ J/⇧ │ K/⌃ │ L/⌥ │  ;  │  '  │
+            // │CTRL │A/MED│ S/⌥ │ D/⌃ │ F/⇧ │  G  │   │  H  │ J/⇧ │ K/⌃ │ L/⌥ │  ;  │  '  │
             // ├─────┼─────┼─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┼─────┼─────┼─────┤
-            // │SHIFT│Z/MED│  X  │  C  │  V  │B/MOU│   │  N  │  M  │  ,  │  .  │  /  │ ESC │
+            // │SHIFT│Z/MOU│  X  │  C  │  V  │  B  │   │  N  │  M  │  ,  │  .  │  /  │ ESC │
             // └─────┴─────┴─────┼─────┼─────┼─────┤   ├─────┼─────┼─────┴─────┴─────┴─────┘
             //                   │ GUI │ NUM │ SPC │   │ RET │ SYM │ BSPC│
             //                   └─────┴─────┴─────┘   └─────┴─────┴─────┘
@@ -182,8 +182,8 @@
 
             bindings = <
 &kp TAB    &kp Q       &kp W        &kp E        &kp R        &kp T          &lt BT Y   &kp U        &kp I        &kp O        &kp P     &bspc_del
-&kp LCTRL  &kp A       &hml LALT S  &hml LCTRL D &hml LSHFT F &kp G          &kp H      &hmr RSHFT J &hmr RCTRL K &hmr RALT L  &kp SEMI  &kp SQT
-&kp LSHFT  &lt MEDIA Z &kp X        &kp C        &kp V        &lt MOUSE B    &kp N      &kp M        &kp COMMA    &kp DOT      &kp FSLH  &kp ESC
+&kp LCTRL  &kp MEDIA A &hml LALT S  &hml LCTRL D &hml LSHFT F &kp G          &kp H      &hmr RSHFT J &hmr RCTRL K &hmr RALT L  &kp SEMI  &kp SQT
+&kp LSHFT  &lt MOUSE Z &kp X        &kp C        &kp V        &kp B          &kp N      &kp M        &kp COMMA    &kp DOT      &kp FSLH  &kp ESC
                                     &kp LGUI     &mo NUM      &kp SPACE      &kp RET    &mo SYM      &kp BSPC
             >;
         };
