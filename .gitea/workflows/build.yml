@@ -127,7 +127,8 @@ jobs:
           ARTIFACT_NAME: artifact-${{ env.artifact_name }}
           ARTIFACT_DIR: ${{ env.build_dir }}/artifacts
         run: |
-          import urllib.request, json, os, glob, sys, hashlib, base64
+          import urllib.request, urllib.parse, urllib.error
+          import json, os, glob, sys, hashlib, base64
 
           runtime_url   = os.environ.get('ACTIONS_RUNTIME_URL', '')
           runtime_token = os.environ.get('ACTIONS_RUNTIME_TOKEN', '')
@@ -141,30 +142,77 @@ jobs:
 
           auth = {'Authorization': f'Bearer {runtime_token}'}
 
-          # 1. Create artifact container
+          def send(req, what):
+              """urlopen that prints the server's error body. A bare 'HTTP 400' tells
+              us nothing; Gitea puts the actual reason in the response body."""
+              try:
+                  return urllib.request.urlopen(req)
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode('utf-8', 'replace')
+                  print(f'FAILED: {what}', file=sys.stderr)
+                  print(f'  HTTP {e.code} {e.reason}', file=sys.stderr)
+                  print(f'  {req.get_method()} {req.full_url}', file=sys.stderr)
+                  for k, v in req.headers.items():
+                      if k.lower() != 'authorization':
+                          print(f'  > {k}: {v}', file=sys.stderr)
+                  print(f'  < body: {body[:2000]}', file=sys.stderr)
+                  raise
+
+          files = [f for f in sorted(glob.glob(os.path.join(artifact_dir, '*'))) if os.path.isfile(f)]
+          if not files:
+              print(f'ERROR: nothing to upload in {artifact_dir}', file=sys.stderr)
+              sys.exit(1)
+          print('to upload:', [f'{os.path.basename(f)} ({os.path.getsize(f)}b)' for f in files])
+
+          # 1. Create artifact container.
+          #
+          # Keys MUST be PascalCase. Gitea binds this body to
+          #     type getUploadArtifactRequest struct { Type, Name string; RetentionDays int64 }
+          # which carries no json tags and is not matched case-insensitively, so
+          # lowercase {"name": ...} silently binds Name to "". Gitea then builds the
+          # upload URL as md5(req.Name) = md5("") = d41d8cd9..., and the upload step
+          # rejects it with "Invalid artifact hash" because it recomputes the hash
+          # from itemPath and gets something else.
           req = urllib.request.Request(
               f'{runtime_url}_apis/pipelines/workflows/{run_id}/artifacts?api-version=6.0-preview',
-              data=json.dumps({'type': 'actions_storage', 'name': artifact_name}).encode(),
+              data=json.dumps({'Type': 'actions_storage', 'Name': artifact_name}).encode(),
               headers={**auth, 'Content-Type': 'application/json'}, method='POST')
-          with urllib.request.urlopen(req) as r:
+          with send(req, 'create artifact container') as r:
               container = json.loads(r.read())
 
           file_url = container['fileContainerResourceUrl']
-          total    = 0
-          items    = []
+          print('fileContainerResourceUrl:', file_url)
+
+          # Fail here with a clear message rather than a bare 400 two steps later.
+          expected = hashlib.md5(artifact_name.encode()).hexdigest()
+          if expected not in file_url:
+              print(f'ERROR: Gitea derived the upload URL from a different name.', file=sys.stderr)
+              print(f'  expected md5({artifact_name!r}) = {expected}', file=sys.stderr)
+              print(f'  got: {file_url}', file=sys.stderr)
+              if 'd41d8cd98f00b204e9800998ecf8427e' in file_url:
+                  print('  that is md5("") — the create body did not bind; check key casing', file=sys.stderr)
+              sys.exit(1)
+
+          # Gitea has returned this URL both with and without an existing query
+          # string; blindly appending '?itemPath=' produces a double '?' and a 400.
+          sep   = '&' if '?' in file_url else '?'
+          total = 0
 
           # 2. Upload each file — Gitea requires x-tfs-filelength and x-actions-results-md5
-          for f in sorted(glob.glob(os.path.join(artifact_dir, '*'))):
-              if not os.path.isfile(f):
-                  continue
+          for f in files:
               fname = os.path.basename(f)
               with open(f, 'rb') as fp:
                   data = fp.read()
-              n       = len(data)
+              n = len(data)
+              if n == 0:
+                  # 'Content-Range: bytes 0--1/0' is malformed and Gitea 400s on it
+                  print(f'  skipping empty {fname}', file=sys.stderr)
+                  continue
               total  += n
               md5_b64 = base64.b64encode(hashlib.md5(data).digest()).decode()
+              item    = urllib.parse.quote(f'{artifact_name}/{fname}')
               req = urllib.request.Request(
-                  f'{file_url}?itemPath={artifact_name}/{fname}', data=data,
+                  f'{file_url}{sep}itemPath={item}', data=data,
                   headers={
                       **auth,
                       'Content-Type': 'application/octet-stream',
@@ -172,15 +220,16 @@ jobs:
                       'x-tfs-filelength': str(n),
                       'x-actions-results-md5': md5_b64,
                   }, method='PUT')
-              urllib.request.urlopen(req)
-              items.append({'path': f'{artifact_name}/{fname}', 'itemType': 'file', 'contentLocation': f'{file_url}?itemPath={artifact_name}/{fname}'})
+              send(req, f'upload {fname} ({n} bytes)').close()
               print(f'  uploaded {fname} ({n} bytes)')
 
-          # 3. Finalise
-          finalize_url = f'{runtime_url}_apis/pipelines/workflows/{run_id}/artifacts?api-version=6.0-preview&artifactName={artifact_name}'
+          # 3. Finalise. PascalCase for the same reason as the create call —
+          # Gitea binds this to `struct { Size int64 }`, and a lowercase key would
+          # silently record the artifact as 0 bytes.
           req = urllib.request.Request(
-              finalize_url,
-              data=json.dumps({'size': total}).encode(),
+              f'{runtime_url}_apis/pipelines/workflows/{run_id}/artifacts'
+              f'?api-version=6.0-preview&artifactName={urllib.parse.quote(artifact_name)}',
+              data=json.dumps({'Size': total}).encode(),
               headers={**auth, 'Content-Type': 'application/json'}, method='PATCH')
-          urllib.request.urlopen(req)
+          send(req, 'finalise artifact').close()
           print(f'Artifact "{artifact_name}" ready ({total} bytes)')
