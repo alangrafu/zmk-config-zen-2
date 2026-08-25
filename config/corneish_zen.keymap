@@ -301,10 +301,10 @@
             // Home-row mods: Option/Ctrl/Shift on S D F  /  J K L (opposite = Command on thumb).
 
             bindings = <
-&kp TAB    &kp Q        &kp W        &kp E         &kp R         &kp T        &ltr BT Y  &kp U         &kp I         &kp O        &kp P     &bspc_del
-&kp LCTRL  &ltl MEDIA A &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G        &kp H      &hmr RSHFT J  &hmr RCTRL K  &hmr RALT L  &kp SEMI  &kp SQT
-&kp LSHFT  &ltl MOUSE Z &kp X        &kp C         &kp V         &kp B        &kp N      &kp M         &kp COMMA     &kp DOT      &kp FSLH  &kp ESC
-                                     &kp LGUI      &mo NUM       &kp SPACE    &kp RET   &mo SYM       &kp BSPC
+&kp TAB    &kp Q         &kp W        &kp E         &kp R         &kp T        &ltr BT Y  &kp U         &kp I         &kp O        &kp P     &bspc_del
+&kp LCTRL  &ltl MEDIA A  &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G        &kp H      &hmr RSHFT J  &hmr RCTRL K  &hmr RALT L  &kp SEMI  &kp SQT
+&kp LSHFT  &ltl MOUSE Z  &kp X        &kp C         &kp V         &kp B        &kp N      &kp M         &kp COMMA     &kp DOT      &kp FSLH  &kp ESC
+                                      &kp LGUI      &mo NUM       &kp SPACE    &kp RET    &mo SYM       &kp BSPC
             >;
         };
 
@@ -316,10 +316,10 @@
             // Left home row = Spanish accents in vowel order: á é í ó ú, with ñ / ü.
 
             bindings = <
-&kp TAB    &kp N1   &kp N2  &kp N3  &kp N4     &kp N5        &kp N6     &kp N7    &kp N8    &kp N9     &kp N0    &bspc_del
-&kp LCTRL  &es_a    &es_e   &es_i   &es_o      &es_u         &kp LEFT   &kp DOWN  &kp UP    &kp RIGHT  &es_n     &es_ud
-&kp LSHFT  &kp LG(Z) &kp LG(X) &kp LG(C) &kp LG(V) &kp LG(LS(Z))  &kp HOME   &kp PG_DN &kp PG_UP &kp END    &trans    &trans
-                             &trans   &trans     &kp SPACE     &kp RET    &mo SYM   &trans
+&kp TAB    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5           &kp N6    &kp N7     &kp N8     &kp N9     &kp N0  &bspc_del
+&kp LCTRL  &es_a      &es_e      &es_i      &es_o      &es_u            &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &es_n   &es_ud
+&kp LSHFT  &kp LG(Z)  &kp LG(X)  &kp LG(C)  &kp LG(V)  &kp LG(LS(Z))    &kp HOME  &kp PG_DN  &kp PG_UP  &kp END    &trans  &trans
+                                 &trans     &trans     &kp SPACE        &kp RET   &mo SYM    &trans
             >;
         };
 
@@ -406,10 +406,10 @@
             // (a combo there would reset the dongle instead of either half).
 
             bindings = <
-&none  &none        &none  &none  &none  &none    &none  &none  &none  &none        &none  &none
-&none  &none        &none  &none  &none  &none    &none  &none  &none  &none        &none  &none
-&none  &bootloader  &none  &none  &none  &none    &none  &none  &none  &none  &bootloader  &none
-                           &none  &trans  &none    &none  &trans  &none
+&none  &none        &none           &none  &none   &none         &none  &none   &none  &none  &none        &none
+&none  &none        &none           &none  &none   &none         &none  &none   &none  &none  &none        &none
+&none  &bootloader  &studio_unlock  &none  &none   &bt BT_CLR    &none  &none   &none  &none  &bootloader  &none
+                                    &none  &trans  &none         &none  &trans  &none
             >;
         };
     };
